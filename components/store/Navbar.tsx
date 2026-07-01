@@ -18,7 +18,7 @@ const DEFAULT_LINKS = [
 
 export function Navbar({ logoUrl, menuItems }: { logoUrl?: string | null; menuItems?: NavMenuItem[] | null }) {
   const { totalItems, openCart } = useCart()
-  const { locale } = useTranslation()
+  const { locale, t } = useTranslation()
   const [mobileOpen, setMobileOpen] = useState(false)
   const count = totalItems()
 
