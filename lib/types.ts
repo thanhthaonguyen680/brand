@@ -133,7 +133,17 @@ export type StoreSettings = {
   about_title: string | null
   about_content: string | null
   about_image_url: string | null
+  popup_enabled: boolean
+  popup_title: string | null
+  popup_description: string | null
   updated_at: string
+}
+
+export type Lead = {
+  id: string
+  name: string
+  phone: string
+  created_at: string
 }
 
 export type CartItem = {

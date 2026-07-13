@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard, Package, ShoppingCart, Users,
-  Megaphone, Palette, ExternalLink, LogOut
+  Megaphone, Palette, ExternalLink, LogOut, UserPlus
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
@@ -14,6 +14,7 @@ const NAV = [
   { href: '/admin/products', label: 'Sản Phẩm', icon: Package },
   { href: '/admin/orders', label: 'Đơn Hàng', icon: ShoppingCart },
   { href: '/admin/customers', label: 'Khách Hàng', icon: Users },
+  { href: '/admin/leads', label: 'Khách Hàng Tiềm Năng', icon: UserPlus },
   { href: '/admin/campaigns', label: 'Chiến Dịch', icon: Megaphone },
   { href: '/admin/settings', label: 'Theme & Cài Đặt', icon: Palette },
 ]
