@@ -241,6 +241,30 @@ export default function AdminSettingsPage() {
               ))}
             </CardContent>
           </Card>
+
+          <Card>
+            <CardHeader><CardTitle>Trang Giới Thiệu (About Us)</CardTitle></CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label>Tiêu đề</Label>
+                <Input value={settings.about_title || ''} onChange={(e) => update('about_title', e.target.value)} placeholder="Về Chúng Tôi" />
+              </div>
+              <div className="space-y-2">
+                <Label>Hình ảnh</Label>
+                <SettingsImageInput value={settings.about_image_url || ''} onChange={(v) => update('about_image_url', v)} bucket="settings" />
+              </div>
+              <div className="space-y-2">
+                <Label>Nội dung</Label>
+                <Textarea
+                  value={settings.about_content || ''}
+                  onChange={(e) => update('about_content', e.target.value)}
+                  rows={10}
+                  placeholder="Câu chuyện thương hiệu, sứ mệnh, giá trị cốt lõi..."
+                />
+                <p className="text-xs text-neutral-400">Xuống dòng sẽ được giữ nguyên khi hiển thị. Sau khi lưu, thêm mục menu &quot;About Us&quot; với link &quot;/about&quot; ở phần Menu Điều Hướng để hiện lên navbar.</p>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Right: Theme */}

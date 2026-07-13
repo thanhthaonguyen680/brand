@@ -260,5 +260,6 @@ insert into public.categories (name, slug, description) values
   ('Áo', 'ao', 'Áo luxury cao cấp'),
   ('Quần', 'quan', 'Quần cao cấp'),
   ('Đầm & Váy', 'dam-vay', 'Đầm và váy luxury'),
-  ('Phụ Kiện', 'phu-kien', 'Phụ kiện thời trang')
+  ('Phụ Kiện', 'phu-kien', 'Phụ kiện thời trang'),
+  ('Set', 'set', 'Set đồ luxury')
 on conflict (slug) do nothing;

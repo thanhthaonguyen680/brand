@@ -130,6 +130,9 @@ export type StoreSettings = {
   social_instagram: string | null
   social_facebook: string | null
   menu_items: MenuItem[] | null
+  about_title: string | null
+  about_content: string | null
+  about_image_url: string | null
   updated_at: string
 }
 
