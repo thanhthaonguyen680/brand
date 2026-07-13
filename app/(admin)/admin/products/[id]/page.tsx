@@ -8,11 +8,12 @@ import { z } from 'zod'
 import { Plus, X, ChevronLeft } from 'lucide-react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-import { Category } from '@/lib/types'
+import { Category, ProductSize } from '@/lib/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { SizeStockEditor } from '@/components/admin/SizeStockEditor'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
@@ -39,6 +40,7 @@ export default function ProductEditPage() {
 
   const [categories, setCategories] = useState<Category[]>([])
   const [images, setImages] = useState<string[]>([])
+  const [sizes, setSizes] = useState<ProductSize[]>([])
   const [tags, setTags] = useState<string[]>([])
   const [tagInput, setTagInput] = useState('')
   const [imageInput, setImageInput] = useState('')
@@ -74,6 +76,7 @@ export default function ProductEditPage() {
           category_id: product.category_id || undefined,
         })
         setImages(product.images || [])
+        setSizes(product.sizes || [])
         setTags(product.tags || [])
       }
       setCategories(cats || [])
@@ -107,6 +110,7 @@ export default function ProductEditPage() {
         compare_price: data.compare_price || null,
         category_id: data.category_id || null,
         images,
+        sizes,
         tags,
       })
       .eq('id', id)
@@ -207,6 +211,14 @@ export default function ProductEditPage() {
                   ))}
                 </div>
               )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader><CardTitle>Size & Số Lượng</CardTitle></CardHeader>
+            <CardContent>
+              <SizeStockEditor sizes={sizes} onChange={setSizes} />
+              <p className="text-xs text-neutral-400 mt-3">Để trống nếu sản phẩm không phân loại theo size.</p>
             </CardContent>
           </Card>
 

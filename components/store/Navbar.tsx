@@ -43,9 +43,9 @@ export function Navbar({ logoUrl, menuItems }: { logoUrl?: string | null; menuIt
           </Link>
 
           <nav className="hidden lg:flex items-center gap-8 flex-1">
-            {NAV_LINKS.map((link) => (
+            {NAV_LINKS.map((link, i) => (
               <Link
-                key={link.href}
+                key={`${link.href}-${i}`}
                 href={link.href}
                 className="text-xs tracking-widest uppercase text-neutral-600 hover:text-neutral-900 transition-colors"
               >
@@ -86,9 +86,9 @@ export function Navbar({ logoUrl, menuItems }: { logoUrl?: string | null; menuIt
       {mobileOpen && (
         <div className="lg:hidden border-t border-neutral-200 bg-white">
           <nav className="flex flex-col px-4 py-4 gap-4">
-            {NAV_LINKS.map((link) => (
+            {NAV_LINKS.map((link, i) => (
               <Link
-                key={link.href}
+                key={`${link.href}-${i}`}
                 href={link.href}
                 className="text-sm tracking-widest uppercase text-neutral-600 hover:text-neutral-900"
                 onClick={() => setMobileOpen(false)}

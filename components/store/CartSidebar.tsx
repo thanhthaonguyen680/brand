@@ -41,8 +41,8 @@ export function CartSidebar() {
           ) : (
             <>
               <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                {items.map(({ product, quantity }) => (
-                  <div key={product.id} className="flex gap-4">
+                {items.map(({ product, quantity, size }) => (
+                  <div key={`${product.id}-${size || ''}`} className="flex gap-4">
                     <div className="relative w-20 h-24 bg-neutral-100 flex-shrink-0">
                       {product.images[0] && (
                         <Image src={product.images[0]} alt={product.name} fill className="object-cover" />
@@ -50,23 +50,24 @@ export function CartSidebar() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="text-sm font-medium truncate">{product.name}</h3>
+                      {size && <p className="text-xs text-neutral-500 mt-0.5">Size: {size}</p>}
                       <p className="text-sm text-[#c9a96e] mt-1">{formatPrice(product.price)}</p>
                       <div className="flex items-center gap-3 mt-3">
                         <button
-                          onClick={() => updateQuantity(product.id, quantity - 1)}
+                          onClick={() => updateQuantity(product.id, quantity - 1, size)}
                           className="w-7 h-7 border border-neutral-300 flex items-center justify-center hover:bg-neutral-100"
                         >
                           <Minus className="w-3 h-3" />
                         </button>
                         <span className="text-sm w-6 text-center">{quantity}</span>
                         <button
-                          onClick={() => updateQuantity(product.id, quantity + 1)}
+                          onClick={() => updateQuantity(product.id, quantity + 1, size)}
                           className="w-7 h-7 border border-neutral-300 flex items-center justify-center hover:bg-neutral-100"
                         >
                           <Plus className="w-3 h-3" />
                         </button>
                         <button
-                          onClick={() => removeItem(product.id)}
+                          onClick={() => removeItem(product.id, size)}
                           className="ml-auto text-neutral-400 hover:text-neutral-900 text-xs"
                         >
                           {t.cart.remove}

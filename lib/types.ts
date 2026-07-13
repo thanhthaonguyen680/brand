@@ -13,6 +13,11 @@ export type Category = {
   created_at: string
 }
 
+export type ProductSize = {
+  size: string
+  stock: number
+}
+
 export type Product = {
   id: string
   name: string
@@ -24,6 +29,7 @@ export type Product = {
   category_id: string | null
   category?: Category
   stock: number
+  sizes: ProductSize[]
   sku: string | null
   status: 'active' | 'draft' | 'archived'
   featured: boolean
@@ -35,7 +41,7 @@ export type Product = {
 
 export type OrderStatus = 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'refunded'
 export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded'
-export type PaymentMethod = 'stripe' | 'vnpay' | 'momo' | 'cod'
+export type PaymentMethod = 'bank_transfer' | 'paypal' | 'cod'
 
 export type OrderItem = {
   id: string
@@ -46,6 +52,7 @@ export type OrderItem = {
   price: number
   product_name: string
   product_image: string | null
+  size: string | null
 }
 
 export type ShippingAddress = {
@@ -136,6 +143,11 @@ export type StoreSettings = {
   popup_enabled: boolean
   popup_title: string | null
   popup_description: string | null
+  bank_name: string | null
+  bank_account_number: string | null
+  bank_account_holder: string | null
+  bank_qr_url: string | null
+  paypal_account: string | null
   updated_at: string
 }
 
@@ -149,4 +161,5 @@ export type Lead = {
 export type CartItem = {
   product: Product
   quantity: number
+  size: string | null
 }

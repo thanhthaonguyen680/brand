@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
         order_number: orderNumber,
         user_id: user?.id || null,
         status: 'pending',
-        payment_status: payment_method === 'cod' ? 'pending' : 'pending',
+        payment_status: 'pending',
         payment_method,
         subtotal,
         shipping_fee,
@@ -49,6 +49,7 @@ export async function POST(request: NextRequest) {
         price: number
         product_name: string
         product_image: string | null
+        size: string | null
       }) => ({
         order_id: order.id,
         product_id: item.product_id,
@@ -56,6 +57,7 @@ export async function POST(request: NextRequest) {
         price: item.price,
         product_name: item.product_name,
         product_image: item.product_image,
+        size: item.size || null,
       }))
     )
 
@@ -66,6 +68,13 @@ export async function POST(request: NextRequest) {
           p_product_id: item.product_id,
           p_quantity: item.quantity,
         })
+        if (item.size) {
+          await supabase.rpc('decrement_size_stock', {
+            p_product_id: item.product_id,
+            p_size: item.size,
+            p_quantity: item.quantity,
+          })
+        }
       } catch {}
     }
 
@@ -79,22 +88,7 @@ export async function POST(request: NextRequest) {
       } catch {}
     }
 
-    // Payment redirect
-    if (payment_method === 'stripe') {
-      return NextResponse.json({
-        redirect_url: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/stripe?order_id=${order.id}`,
-        order_id: order.id,
-      })
-    }
-
-    if (payment_method === 'vnpay') {
-      return NextResponse.json({
-        redirect_url: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/vnpay?order_id=${order.id}`,
-        order_id: order.id,
-      })
-    }
-
-    // COD or MoMo: return order directly
+    // Payment is confirmed manually by staff (COD on delivery, or bank transfer / PayPal verified against the bank statement)
     return NextResponse.json({ order_id: order.id, order_number: orderNumber })
   } catch (error) {
     console.error('Checkout error:', error)

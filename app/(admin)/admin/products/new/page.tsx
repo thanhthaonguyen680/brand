@@ -8,12 +8,13 @@ import { z } from 'zod'
 import { ChevronLeft, X } from 'lucide-react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-import { Category } from '@/lib/types'
+import { Category, ProductSize } from '@/lib/types'
 import { slugify } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ImageUpload } from '@/components/admin/ImageUpload'
+import { SizeStockEditor } from '@/components/admin/SizeStockEditor'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -38,6 +39,7 @@ export default function ProductFormPage() {
   const router = useRouter()
   const [categories, setCategories] = useState<Category[]>([])
   const [images, setImages] = useState<string[]>([])
+  const [sizes, setSizes] = useState<ProductSize[]>([])
   const [tags, setTags] = useState<string[]>([])
   const [tagInput, setTagInput] = useState('')
   const [loading, setLoading] = useState(false)
@@ -81,6 +83,7 @@ export default function ProductFormPage() {
       compare_price: data.compare_price || null,
       category_id: data.category_id || null,
       images,
+      sizes,
       tags,
     })
     if (error) {
@@ -151,6 +154,14 @@ export default function ProductFormPage() {
             <CardHeader><CardTitle>Hình Ảnh</CardTitle></CardHeader>
             <CardContent>
               <ImageUpload images={images} onChange={setImages} />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader><CardTitle>Size & Số Lượng</CardTitle></CardHeader>
+            <CardContent>
+              <SizeStockEditor sizes={sizes} onChange={setSizes} />
+              <p className="text-xs text-neutral-400 mt-3">Để trống nếu sản phẩm không phân loại theo size.</p>
             </CardContent>
           </Card>
 

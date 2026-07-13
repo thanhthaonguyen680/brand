@@ -42,6 +42,12 @@ export default function AdminOrdersPage() {
     setOrders(orders.map((o) => o.id === orderId ? { ...o, status } : o))
   }
 
+  const markAsPaid = async (orderId: string) => {
+    const supabase = createClient()
+    await supabase.from('orders').update({ payment_status: 'paid' }).eq('id', orderId)
+    setOrders(orders.map((o) => o.id === orderId ? { ...o, payment_status: 'paid' } : o))
+  }
+
   const address = (order: Order) => {
     const a = order.shipping_address
     return `${a.full_name} — ${a.phone}`
@@ -97,6 +103,14 @@ export default function AdminOrdersPage() {
                         {PAYMENT_STATUS_LABELS[order.payment_status]}
                       </Badge>
                       <p className="text-xs text-neutral-400 mt-1">{PAYMENT_METHOD_LABELS[order.payment_method]}</p>
+                      {order.payment_status !== 'paid' && order.payment_method !== 'cod' && (
+                        <button
+                          onClick={() => markAsPaid(order.id)}
+                          className="text-xs text-[#c9a96e] hover:underline mt-1"
+                        >
+                          Đánh dấu đã thanh toán
+                        </button>
+                      )}
                     </div>
                   </td>
                   <td className="px-6 py-4">

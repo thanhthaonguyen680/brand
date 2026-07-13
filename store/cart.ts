@@ -5,9 +5,9 @@ import { CartItem, Product } from '@/lib/types'
 interface CartState {
   items: CartItem[]
   isOpen: boolean
-  addItem: (product: Product, quantity?: number) => void
-  removeItem: (productId: string) => void
-  updateQuantity: (productId: string, quantity: number) => void
+  addItem: (product: Product, quantity?: number, size?: string | null) => void
+  removeItem: (productId: string, size?: string | null) => void
+  updateQuantity: (productId: string, quantity: number, size?: string | null) => void
   clearCart: () => void
   openCart: () => void
   closeCart: () => void
@@ -15,42 +15,45 @@ interface CartState {
   totalPrice: () => number
 }
 
+const sameLine = (i: CartItem, productId: string, size?: string | null) =>
+  i.product.id === productId && (i.size || null) === (size || null)
+
 export const useCart = create<CartState>()(
   persist(
     (set, get) => ({
       items: [],
       isOpen: false,
 
-      addItem: (product, quantity = 1) => {
+      addItem: (product, quantity = 1, size = null) => {
         set((state) => {
-          const existing = state.items.find((i) => i.product.id === product.id)
+          const existing = state.items.find((i) => sameLine(i, product.id, size))
           if (existing) {
             return {
               items: state.items.map((i) =>
-                i.product.id === product.id
+                sameLine(i, product.id, size)
                   ? { ...i, quantity: i.quantity + quantity }
                   : i
               ),
               isOpen: true,
             }
           }
-          return { items: [...state.items, { product, quantity }], isOpen: true }
+          return { items: [...state.items, { product, quantity, size: size || null }], isOpen: true }
         })
       },
 
-      removeItem: (productId) =>
+      removeItem: (productId, size = null) =>
         set((state) => ({
-          items: state.items.filter((i) => i.product.id !== productId),
+          items: state.items.filter((i) => !sameLine(i, productId, size)),
         })),
 
-      updateQuantity: (productId, quantity) => {
+      updateQuantity: (productId, quantity, size = null) => {
         if (quantity <= 0) {
-          get().removeItem(productId)
+          get().removeItem(productId, size)
           return
         }
         set((state) => ({
           items: state.items.map((i) =>
-            i.product.id === productId ? { ...i, quantity } : i
+            sameLine(i, productId, size) ? { ...i, quantity } : i
           ),
         }))
       },

@@ -47,7 +47,11 @@ export function EditorialCard({ product }: { product: Product }) {
 
           {/* Add to cart overlay */}
           <button
-            onClick={(e) => { e.preventDefault(); addItem(product) }}
+            onClick={(e) => {
+              if (product.sizes && product.sizes.length > 0) return
+              e.preventDefault()
+              addItem(product)
+            }}
             className="absolute bottom-0 left-0 right-0 bg-white/90 backdrop-blur-sm text-neutral-900 text-xs tracking-widest uppercase py-3.5 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center gap-2 font-medium"
           >
             <ShoppingBag className="w-3.5 h-3.5" />

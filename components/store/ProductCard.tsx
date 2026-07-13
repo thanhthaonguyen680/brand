@@ -44,6 +44,7 @@ export function ProductCard({ product }: ProductCardProps) {
           )}
           <button
             onClick={(e) => {
+              if (product.sizes && product.sizes.length > 0) return
               e.preventDefault()
               addItem(product)
             }}

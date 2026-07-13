@@ -63,8 +63,7 @@ export const PAYMENT_STATUS_LABELS: Record<string, string> = {
 }
 
 export const PAYMENT_METHOD_LABELS: Record<string, string> = {
-  stripe: 'Thẻ tín dụng / Stripe',
-  vnpay: 'VNPay',
-  momo: 'MoMo',
+  bank_transfer: 'Chuyển khoản ngân hàng',
+  paypal: 'PayPal',
   cod: 'Thanh toán khi nhận hàng',
 }

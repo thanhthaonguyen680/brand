@@ -137,7 +137,7 @@ export const translations = {
       size_guide: 'Hướng Dẫn Size',
       shipping: 'Vận Chuyển',
       copyright: '© 2024 KHA. All rights reserved.',
-      payment: 'Thanh toán an toàn với Stripe, VNPay, MoMo & COD',
+      payment: 'Thanh toán an toàn với Chuyển Khoản, PayPal & COD',
     },
     account: {
       title: 'Tài Khoản',
@@ -290,7 +290,7 @@ export const translations = {
       size_guide: 'Size Guide',
       shipping: 'Shipping',
       copyright: '© 2024 KHA. All rights reserved.',
-      payment: 'Secure payment via Stripe, VNPay, MoMo & COD',
+      payment: 'Secure payment via Bank Transfer, PayPal & COD',
     },
     account: {
       title: 'My Account',
