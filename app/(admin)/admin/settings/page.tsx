@@ -9,8 +9,8 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { SettingsImageInput } from '@/components/admin/SettingsImageInput'
+import { LinkListEditor } from '@/components/admin/LinkListEditor'
 import { MenuItem } from '@/lib/types'
-import { Plus, Trash2 } from 'lucide-react'
 
 const DEFAULT_SETTINGS: Partial<StoreSettings> = {
   store_name: 'LUXE',
@@ -71,27 +71,12 @@ export default function AdminSettingsPage() {
   }
 
   const menuItems: MenuItem[] = (settings.menu_items as MenuItem[]) || []
+  const exploreLinks: MenuItem[] = (settings.footer_explore_links as MenuItem[]) || []
+  const supportLinks: MenuItem[] = (settings.footer_support_links as MenuItem[]) || []
 
-  const updateMenuItem = (index: number, field: keyof MenuItem, value: string) => {
-    const updated = menuItems.map((item, i) =>
-      i === index ? { ...item, [field]: value } : item
-    )
-    setSettings((prev) => ({ ...prev, menu_items: updated }))
-  }
-
-  const addMenuItem = () => {
-    setSettings((prev) => ({
-      ...prev,
-      menu_items: [...menuItems, { label: 'Menu mới', label_en: 'New Menu', href: '/products' }],
-    }))
-  }
-
-  const removeMenuItem = (index: number) => {
-    setSettings((prev) => ({
-      ...prev,
-      menu_items: menuItems.filter((_, i) => i !== index),
-    }))
-  }
+  const setMenuItems = (items: MenuItem[]) => setSettings((prev) => ({ ...prev, menu_items: items }))
+  const setExploreLinks = (items: MenuItem[]) => setSettings((prev) => ({ ...prev, footer_explore_links: items }))
+  const setSupportLinks = (items: MenuItem[]) => setSettings((prev) => ({ ...prev, footer_support_links: items }))
 
   if (loading) return <div className="text-center py-20 text-neutral-400">Đang tải...</div>
 
@@ -235,54 +220,43 @@ export default function AdminSettingsPage() {
           </Card>
 
           <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Menu Điều Hướng</CardTitle>
-                <button
-                  type="button"
-                  onClick={addMenuItem}
-                  className="flex items-center gap-1 text-sm text-[#c9a96e] hover:underline"
-                >
-                  <Plus className="w-4 h-4" /> Thêm mục
-                </button>
+            <CardHeader><CardTitle>Menu Điều Hướng</CardTitle></CardHeader>
+            <CardContent>
+              <LinkListEditor items={menuItems} onChange={setMenuItems} />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader><CardTitle>Footer</CardTitle></CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-2">
+                <Label>Mô tả thương hiệu</Label>
+                <Textarea
+                  value={settings.footer_description || ''}
+                  onChange={(e) => update('footer_description', e.target.value)}
+                  rows={3}
+                  placeholder="Thời trang luxury cao cấp — nơi phong cách gặp gỡ sự tinh tế..."
+                />
               </div>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {menuItems.map((item, i) => (
-                <div key={i} className="grid grid-cols-[1fr_1fr_1fr_auto] gap-2 items-center">
-                  <div>
-                    {i === 0 && <Label className="text-xs mb-1 block">Tên (VI)</Label>}
-                    <Input
-                      value={item.label}
-                      onChange={(e) => updateMenuItem(i, 'label', e.target.value)}
-                      placeholder="Tên tiếng Việt"
-                    />
-                  </div>
-                  <div>
-                    {i === 0 && <Label className="text-xs mb-1 block">Tên (EN)</Label>}
-                    <Input
-                      value={item.label_en}
-                      onChange={(e) => updateMenuItem(i, 'label_en', e.target.value)}
-                      placeholder="English name"
-                    />
-                  </div>
-                  <div>
-                    {i === 0 && <Label className="text-xs mb-1 block">Link (href)</Label>}
-                    <Input
-                      value={item.href}
-                      onChange={(e) => updateMenuItem(i, 'href', e.target.value)}
-                      placeholder="/products"
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => removeMenuItem(i)}
-                    className={`hover:text-red-500 text-neutral-400 ${i === 0 ? 'mt-5' : ''}`}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+              <div className="space-y-2">
+                <Label>Cột &quot;Khám Phá&quot;</Label>
+                <LinkListEditor items={exploreLinks} onChange={setExploreLinks} />
+              </div>
+              <div className="space-y-2">
+                <Label>Cột &quot;Hỗ Trợ&quot;</Label>
+                <LinkListEditor items={supportLinks} onChange={setSupportLinks} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Copyright</Label>
+                  <Input value={settings.footer_copyright || ''} onChange={(e) => update('footer_copyright', e.target.value)} placeholder="© 2026 KHA. All rights reserved." />
                 </div>
-              ))}
+                <div className="space-y-2">
+                  <Label>Dòng chữ thanh toán</Label>
+                  <Input value={settings.footer_payment_text || ''} onChange={(e) => update('footer_payment_text', e.target.value)} placeholder="Thanh toán an toàn với..." />
+                </div>
+              </div>
+              <p className="text-xs text-neutral-400">Icon mạng xã hội ở footer lấy từ Instagram/Facebook URL ở card &quot;Mạng Xã Hội&quot; phía trên.</p>
             </CardContent>
           </Card>
 

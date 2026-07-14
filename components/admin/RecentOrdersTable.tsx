@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-import { Order, OrderStatus } from '@/lib/types'
+import { Order, OrderStatus, PaymentStatus } from '@/lib/types'
 import { formatPrice, ORDER_STATUS_LABELS, PAYMENT_STATUS_LABELS } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 
@@ -36,10 +36,10 @@ export function RecentOrdersTable() {
     setOrders(orders.map((o) => o.id === orderId ? { ...o, status } : o))
   }
 
-  const markAsPaid = async (orderId: string) => {
+  const updatePaymentStatus = async (orderId: string, payment_status: PaymentStatus) => {
     const supabase = createClient()
-    await supabase.from('orders').update({ payment_status: 'paid' }).eq('id', orderId)
-    setOrders(orders.map((o) => o.id === orderId ? { ...o, payment_status: 'paid' } : o))
+    await supabase.from('orders').update({ payment_status }).eq('id', orderId)
+    setOrders(orders.map((o) => o.id === orderId ? { ...o, payment_status } : o))
   }
 
   if (loading) return <p className="text-center py-8 text-neutral-400 text-sm">Đang tải...</p>
@@ -82,18 +82,19 @@ export function RecentOrdersTable() {
               </div>
             </td>
             <td className="px-6 py-4">
-              <div>
+              <div className="flex items-center gap-2">
                 <Badge variant={order.payment_status === 'paid' ? 'success' : 'warning'}>
                   {PAYMENT_STATUS_LABELS[order.payment_status]}
                 </Badge>
-                {order.payment_status !== 'paid' && (
-                  <button
-                    onClick={() => markAsPaid(order.id)}
-                    className="block text-xs text-[#c9a96e] hover:underline mt-1"
-                  >
-                    Đánh dấu đã thanh toán
-                  </button>
-                )}
+                <select
+                  value={order.payment_status}
+                  onChange={(e) => updatePaymentStatus(order.id, e.target.value as PaymentStatus)}
+                  className="text-xs border border-neutral-300 px-2 py-1 focus:outline-none bg-white"
+                >
+                  {Object.entries(PAYMENT_STATUS_LABELS).map(([v, label]) => (
+                    <option key={v} value={v}>{label}</option>
+                  ))}
+                </select>
               </div>
             </td>
             <td className="px-6 py-4 text-xs text-neutral-400">

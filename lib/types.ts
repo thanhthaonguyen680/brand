@@ -148,6 +148,11 @@ export type StoreSettings = {
   bank_account_holder: string | null
   bank_qr_url: string | null
   paypal_account: string | null
+  footer_description: string | null
+  footer_explore_links: MenuItem[] | null
+  footer_support_links: MenuItem[] | null
+  footer_copyright: string | null
+  footer_payment_text: string | null
   updated_at: string
 }
 

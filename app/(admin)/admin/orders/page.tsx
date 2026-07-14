@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Order } from '@/lib/types'
+import { Order, PaymentStatus } from '@/lib/types'
 import { formatPrice, ORDER_STATUS_LABELS, PAYMENT_STATUS_LABELS, PAYMENT_METHOD_LABELS } from '@/lib/utils'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -42,10 +42,10 @@ export default function AdminOrdersPage() {
     setOrders(orders.map((o) => o.id === orderId ? { ...o, status } : o))
   }
 
-  const markAsPaid = async (orderId: string) => {
+  const updatePaymentStatus = async (orderId: string, payment_status: PaymentStatus) => {
     const supabase = createClient()
-    await supabase.from('orders').update({ payment_status: 'paid' }).eq('id', orderId)
-    setOrders(orders.map((o) => o.id === orderId ? { ...o, payment_status: 'paid' } : o))
+    await supabase.from('orders').update({ payment_status }).eq('id', orderId)
+    setOrders(orders.map((o) => o.id === orderId ? { ...o, payment_status } : o))
   }
 
   const address = (order: Order) => {
@@ -98,19 +98,22 @@ export default function AdminOrdersPage() {
                   <td className="px-6 py-4 text-sm text-neutral-600">{address(order)}</td>
                   <td className="px-6 py-4 text-sm font-medium">{formatPrice(order.total)}</td>
                   <td className="px-6 py-4">
-                    <div>
-                      <Badge variant={order.payment_status === 'paid' ? 'success' : 'warning'}>
-                        {PAYMENT_STATUS_LABELS[order.payment_status]}
-                      </Badge>
-                      <p className="text-xs text-neutral-400 mt-1">{PAYMENT_METHOD_LABELS[order.payment_method]}</p>
-                      {order.payment_status !== 'paid' && (
-                        <button
-                          onClick={() => markAsPaid(order.id)}
-                          className="text-xs text-[#c9a96e] hover:underline mt-1"
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-2">
+                        <Badge variant={order.payment_status === 'paid' ? 'success' : 'warning'}>
+                          {PAYMENT_STATUS_LABELS[order.payment_status]}
+                        </Badge>
+                        <select
+                          value={order.payment_status}
+                          onChange={(e) => updatePaymentStatus(order.id, e.target.value as PaymentStatus)}
+                          className="text-xs border border-neutral-300 px-2 py-1 focus:outline-none bg-white"
                         >
-                          Đánh dấu đã thanh toán
-                        </button>
-                      )}
+                          {Object.entries(PAYMENT_STATUS_LABELS).map(([v, label]) => (
+                            <option key={v} value={v}>{label}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <p className="text-xs text-neutral-400">{PAYMENT_METHOD_LABELS[order.payment_method]}</p>
                     </div>
                   </td>
                   <td className="px-6 py-4">
