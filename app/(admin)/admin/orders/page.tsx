@@ -103,7 +103,7 @@ export default function AdminOrdersPage() {
                         {PAYMENT_STATUS_LABELS[order.payment_status]}
                       </Badge>
                       <p className="text-xs text-neutral-400 mt-1">{PAYMENT_METHOD_LABELS[order.payment_method]}</p>
-                      {order.payment_status !== 'paid' && order.payment_method !== 'cod' && (
+                      {order.payment_status !== 'paid' && (
                         <button
                           onClick={() => markAsPaid(order.id)}
                           className="text-xs text-[#c9a96e] hover:underline mt-1"
