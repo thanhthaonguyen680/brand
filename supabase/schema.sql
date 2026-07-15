@@ -1,6 +1,10 @@
 -- =============================================
--- LUXE - Luxury Fashion Store Database Schema
--- Run this in Supabase SQL Editor
+-- KHA - Luxury Fashion Store Database Schema
+-- Run this once in the Supabase SQL Editor to set up a fresh project.
+-- This file is the consolidated, up-to-date schema — it already includes
+-- every change that used to live in separate supabase/migration_*.sql
+-- files. Those files are kept around only to upgrade a database that was
+-- set up before a given feature existed; a fresh project does not need them.
 -- =============================================
 
 -- Enable UUID extension
@@ -81,9 +85,11 @@ create table public.products (
   images text[] not null default '{}',
   category_id uuid references public.categories(id) on delete set null,
   stock integer not null default 0,
+  sizes jsonb not null default '[]'::jsonb,
   sku text,
   status text not null default 'draft' check (status in ('active', 'draft', 'archived')),
   featured boolean not null default false,
+  is_new boolean not null default false,
   tags text[] not null default '{}',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -113,6 +119,34 @@ create trigger products_updated_at
   before update on public.products
   for each row execute procedure public.update_updated_at();
 
+-- Decrement total stock on checkout (bypasses RLS since customers aren't admins)
+create or replace function public.decrement_stock(p_product_id uuid, p_quantity int)
+returns void as $$
+begin
+  update public.products
+  set stock = greatest(0, stock - p_quantity)
+  where id = p_product_id;
+end;
+$$ language plpgsql security definer;
+
+-- Decrement stock for one size within products.sizes, e.g. [{"size": "S", "stock": 10}]
+create or replace function public.decrement_size_stock(p_product_id uuid, p_size text, p_quantity int)
+returns void as $$
+begin
+  update public.products
+  set sizes = (
+    select coalesce(jsonb_agg(
+      case when elem->>'size' = p_size
+        then jsonb_set(elem, '{stock}', to_jsonb(greatest(0, (elem->>'stock')::int - p_quantity)))
+        else elem
+      end
+    ), '[]'::jsonb)
+    from jsonb_array_elements(sizes) elem
+  )
+  where id = p_product_id;
+end;
+$$ language plpgsql security definer;
+
 -- =============================================
 -- ORDERS
 -- =============================================
@@ -122,7 +156,7 @@ create table public.orders (
   user_id uuid references auth.users(id) on delete set null,
   status text not null default 'pending' check (status in ('pending','confirmed','processing','shipped','delivered','cancelled','refunded')),
   payment_status text not null default 'pending' check (payment_status in ('pending','paid','failed','refunded')),
-  payment_method text not null check (payment_method in ('stripe','vnpay','momo','cod')),
+  payment_method text not null check (payment_method in ('bank_transfer','paypal','cod')),
   subtotal numeric(12,2) not null default 0,
   shipping_fee numeric(12,2) not null default 0,
   discount numeric(12,2) not null default 0,
@@ -164,7 +198,8 @@ create table public.order_items (
   quantity integer not null default 1,
   price numeric(12,2) not null,
   product_name text not null,
-  product_image text
+  product_image text,
+  size text
 );
 
 alter table public.order_items enable row level security;
@@ -215,6 +250,57 @@ create policy "Only admins can manage campaigns" on public.campaigns
   );
 
 -- =============================================
+-- LEADS (popup lead-capture submissions)
+-- =============================================
+create table public.leads (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  phone text not null,
+  created_at timestamptz not null default now()
+);
+
+alter table public.leads enable row level security;
+
+create policy "Anyone can submit a lead" on public.leads
+  for insert with check (true);
+
+create policy "Admins can view leads" on public.leads
+  for select using (
+    exists (select 1 from public.profiles where id = auth.uid() and role = 'admin')
+  );
+
+create policy "Admins can delete leads" on public.leads
+  for delete using (
+    exists (select 1 from public.profiles where id = auth.uid() and role = 'admin')
+  );
+
+-- =============================================
+-- PAGES (generic content pages linkable from menu/footer)
+-- =============================================
+create table public.pages (
+  id uuid primary key default uuid_generate_v4(),
+  title text not null,
+  slug text not null unique,
+  content text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.pages enable row level security;
+
+create policy "Pages are publicly readable" on public.pages
+  for select using (true);
+
+create policy "Only admins can manage pages" on public.pages
+  for all using (
+    exists (select 1 from public.profiles where id = auth.uid() and role = 'admin')
+  );
+
+create trigger pages_updated_at
+  before update on public.pages
+  for each row execute procedure public.update_updated_at();
+
+-- =============================================
 -- STORE SETTINGS
 -- =============================================
 create table public.store_settings (
@@ -229,14 +315,55 @@ create table public.store_settings (
   accent_color text not null default '#f5f0e8',
   font_heading text not null default 'Playfair Display',
   font_body text not null default 'Inter',
+  hero_badge text default 'Bộ Sưu Tập Mới 2026',
   hero_title text not null default 'Luxury Redefined',
+  hero_title_image_url text,
   hero_subtitle text not null default 'Discover timeless elegance in every piece',
   hero_image_url text,
+  hero2_title text,
+  hero2_subtitle text,
+  hero2_image_url text,
+  hero2_cta text,
   contact_email text,
   contact_phone text,
   address text,
   social_instagram text,
   social_facebook text,
+  menu_items jsonb default '[
+    {"label": "Bộ Sưu Tập", "label_en": "Collection", "href": "/products"},
+    {"label": "Áo", "label_en": "Tops", "href": "/products?category=ao"},
+    {"label": "Quần", "label_en": "Bottoms", "href": "/products?category=quan"},
+    {"label": "Đầm & Váy", "label_en": "Dresses & Skirts", "href": "/products?category=dam-vay"},
+    {"label": "Phụ Kiện", "label_en": "Accessories", "href": "/products?category=phu-kien"}
+  ]'::jsonb,
+  about_title text default 'Về Chúng Tôi',
+  about_content text,
+  about_image_url text,
+  popup_enabled boolean not null default false,
+  popup_title text default 'Ưu Đãi Dành Riêng Cho Bạn',
+  popup_description text default 'Để lại thông tin để nhận ưu đãi mới nhất từ chúng tôi.',
+  bank_name text,
+  bank_account_number text,
+  bank_account_holder text,
+  bank_qr_url text,
+  paypal_account text,
+  footer_description text default 'Thời trang luxury cao cấp — nơi phong cách gặp gỡ sự tinh tế. Mỗi món đồ là một tuyên ngôn về đẳng cấp.',
+  footer_explore_links jsonb default '[
+    {"label": "Bộ Sưu Tập", "label_en": "Collection", "href": "/products"},
+    {"label": "Áo", "label_en": "Tops", "href": "/products?category=ao"},
+    {"label": "Quần", "label_en": "Bottoms", "href": "/products?category=quan"},
+    {"label": "Đầm & Váy", "label_en": "Dresses & Skirts", "href": "/products?category=dam-vay"},
+    {"label": "Phụ Kiện", "label_en": "Accessories", "href": "/products?category=phu-kien"}
+  ]'::jsonb,
+  footer_support_links jsonb default '[
+    {"label": "Tài Khoản", "label_en": "Account", "href": "/account"},
+    {"label": "Liên Hệ", "label_en": "Contact Us", "href": "mailto:info@kha.vn"},
+    {"label": "Chính Sách Đổi Trả", "label_en": "Return Policy", "href": "/pages/chinh-sach-doi-tra"},
+    {"label": "Hướng Dẫn Size", "label_en": "Size Guide", "href": "/pages/huong-dan-size"},
+    {"label": "Vận Chuyển", "label_en": "Shipping", "href": "/pages/van-chuyen"}
+  ]'::jsonb,
+  footer_copyright text default '© 2026 KHA. All rights reserved.',
+  footer_payment_text text default 'Thanh toán an toàn với Chuyển Khoản, PayPal & COD',
   updated_at timestamptz not null default now()
 );
 
@@ -254,7 +381,68 @@ create policy "Only admins can update settings" on public.store_settings
 insert into public.store_settings (id) values (1) on conflict (id) do nothing;
 
 -- =============================================
--- SEED DATA (demo products & categories)
+-- STORAGE BUCKETS
+-- =============================================
+insert into storage.buckets (id, name, public)
+values ('products', 'products', true)
+on conflict (id) do nothing;
+
+insert into storage.buckets (id, name, public)
+values ('settings', 'settings', true)
+on conflict (id) do nothing;
+
+create policy "Product images are publicly readable"
+on storage.objects for select
+using (bucket_id = 'products');
+
+create policy "Admins can upload product images"
+on storage.objects for insert
+with check (
+  bucket_id = 'products'
+  and exists (select 1 from public.profiles where id = auth.uid() and role = 'admin')
+);
+
+create policy "Admins can update product images"
+on storage.objects for update
+using (
+  bucket_id = 'products'
+  and exists (select 1 from public.profiles where id = auth.uid() and role = 'admin')
+);
+
+create policy "Admins can delete product images"
+on storage.objects for delete
+using (
+  bucket_id = 'products'
+  and exists (select 1 from public.profiles where id = auth.uid() and role = 'admin')
+);
+
+create policy "Settings images are publicly readable"
+on storage.objects for select
+using (bucket_id = 'settings');
+
+create policy "Admins can upload settings images"
+on storage.objects for insert
+with check (
+  bucket_id = 'settings'
+  and exists (select 1 from public.profiles where id = auth.uid() and role = 'admin')
+);
+
+create policy "Admins can update settings images"
+on storage.objects for update
+using (
+  bucket_id = 'settings'
+  and exists (select 1 from public.profiles where id = auth.uid() and role = 'admin')
+);
+
+create policy "Admins can delete settings images"
+on storage.objects for delete
+using (
+  bucket_id = 'settings'
+  and exists (select 1 from public.profiles where id = auth.uid() and role = 'admin')
+);
+
+-- =============================================
+-- SEED DATA
 -- =============================================
 insert into public.categories (name, slug, description) values
   ('Áo', 'ao', 'Áo luxury cao cấp'),
@@ -262,4 +450,70 @@ insert into public.categories (name, slug, description) values
   ('Đầm & Váy', 'dam-vay', 'Đầm và váy luxury'),
   ('Phụ Kiện', 'phu-kien', 'Phụ kiện thời trang'),
   ('Set', 'set', 'Set đồ luxury')
+on conflict (slug) do nothing;
+
+-- Default content pages linked from the footer's "Hỗ Trợ" column
+insert into public.pages (title, slug, content) values
+(
+  'Chính Sách Đổi Trả',
+  'chinh-sach-doi-tra',
+  'KHA hỗ trợ đổi trả trong vòng 7 ngày kể từ ngày nhận hàng để đảm bảo bạn hoàn toàn hài lòng với sản phẩm.
+
+1. Điều kiện đổi trả
+- Sản phẩm còn nguyên tem, mác, chưa qua sử dụng hoặc giặt ủi.
+- Còn đầy đủ hộp, túi, phụ kiện đi kèm (nếu có).
+- Có hóa đơn hoặc mã đơn hàng.
+
+2. Trường hợp không áp dụng
+- Sản phẩm đã qua sử dụng, có dấu hiệu hư hỏng do người dùng.
+- Đồ lót, phụ kiện cá nhân vì lý do vệ sinh.
+- Sản phẩm đặt may riêng theo yêu cầu.
+- Sản phẩm thuộc chương trình giảm giá trên 50%.
+
+3. Quy trình đổi trả
+- Bước 1: Liên hệ hotline hoặc email trong vòng 7 ngày kể từ khi nhận hàng.
+- Bước 2: Gửi sản phẩm về địa chỉ cửa hàng theo hướng dẫn từ nhân viên hỗ trợ.
+- Bước 3: Sau khi nhận và kiểm tra sản phẩm, KHA sẽ đổi size/sản phẩm khác hoặc hoàn tiền trong 3-5 ngày làm việc.
+
+Mọi thắc mắc vui lòng liên hệ qua mục Liên Hệ ở footer.'
+),
+(
+  'Hướng Dẫn Size',
+  'huong-dan-size',
+  'Bảng size dưới đây giúp bạn chọn được form dáng vừa vặn nhất. Nếu số đo của bạn nằm giữa 2 size, hãy chọn size lớn hơn để thoải mái hơn khi mặc.
+
+Bảng Size Cho Nữ
+- XS: Dưới 38kg — Cao 1m40 - 1m45
+- S: 38 - 43kg — Cao 1m45 - 1m53
+- M: 43 - 46kg — Cao 1m50 - 1m55
+- L: 46 - 53kg — Cao 1m55 - 1m60
+- XL: 53 - 58kg — Cao 1m60 - 1m65
+- XXL: 58 - 66kg — Cao 1m65 - 1m70
+
+Cách đo số đo cơ thể
+- Vòng ngực: đo quanh phần ngực nở nhất.
+- Vòng eo: đo quanh phần eo nhỏ nhất.
+- Vòng mông: đo quanh phần mông nở nhất.
+
+Nếu vẫn phân vân giữa 2 size, hãy liên hệ với KHA qua mục Liên Hệ để được tư vấn size phù hợp với dáng người của bạn.'
+),
+(
+  'Vận Chuyển',
+  'van-chuyen',
+  'KHA giao hàng toàn quốc thông qua các đối tác vận chuyển uy tín.
+
+1. Thời gian giao hàng
+- Nội thành TP.HCM và Hà Nội: 1-2 ngày làm việc.
+- Các tỉnh thành khác: 3-5 ngày làm việc.
+
+2. Phí vận chuyển
+- Miễn phí vận chuyển cho đơn hàng từ 2.000.000₫.
+- Đơn hàng dưới 2.000.000₫: phí vận chuyển 50.000₫ (tính vào bước thanh toán).
+
+3. Theo dõi đơn hàng
+- Sau khi đơn hàng được xác nhận, bạn có thể theo dõi trạng thái đơn tại mục "Tài Khoản" > "Đơn Hàng".
+- Mã vận đơn sẽ được gửi qua email/SMS khi đơn hàng được bàn giao cho đơn vị vận chuyển.
+
+Mọi thắc mắc về đơn hàng vui lòng liên hệ qua mục Liên Hệ ở footer.'
+)
 on conflict (slug) do nothing;

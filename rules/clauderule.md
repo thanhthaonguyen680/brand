@@ -6,11 +6,12 @@ Conventions this codebase follows. Apply them to every change so the admin panel
 
 Categories, navigation menu, hero/about/popup copy, theme colors, and fonts all live in Supabase (`store_settings`, `categories`, etc.) and are edited from `/admin/settings` or the relevant admin page. Never hardcode display text, categories, or menu links directly in a component — read them from the DB with a sensible fallback default, the way `Navbar.tsx` falls back to `DEFAULT_LINKS` when `menu_items` is empty.
 
-## 2. Every schema change ships a migration file
+## 2. Every schema change ships a migration file — and updates schema.sql
 
-`supabase/schema.sql` is the original seed; everything since has been added incrementally via standalone files (`supabase/migration_<feature>.sql`). When adding a column, table, or storage bucket:
+`supabase/schema.sql` is the **complete, up-to-date schema** (as of 2026-07-15 it was consolidated from over a dozen incremental migration files — see git history). When adding a column, table, or storage bucket:
 
-- Create a new `supabase/migration_<feature>.sql` (don't silently edit `schema.sql` alone — new environments run `schema.sql` once, existing ones need the incremental file).
+- Create a new `supabase/migration_<feature>.sql` with just the new change — this is what lets someone with an **existing** production database (which already has data and can't re-run `schema.sql`) catch up.
+- Also fold the same change directly into `supabase/schema.sql` in the same commit, so it stays accurate for anyone setting up a **fresh** project. Don't let the two drift apart again.
 - Migrations are **never auto-applied**. Always tell the user explicitly to run the new file in the Supabase SQL Editor after you push code — code referencing a column/table that doesn't exist yet will fail at runtime, not at build time.
 - Update `lib/types.ts` in the same change whenever a DB column/table changes shape.
 
@@ -42,8 +43,10 @@ Any admin mutation (`save`, `upsert`, `insert`, `delete`) must check `{ error }`
 ## 6. File placement conventions
 
 - New admin page → `app/(admin)/admin/<name>/page.tsx`, and register it in `components/admin/AdminSidebar.tsx`'s `NAV` array.
+- New store-settings sub-page (theme/content the admin edits) → `app/(admin)/admin/settings/<name>/page.tsx`, registered in `AdminSidebar.tsx`'s `SETTINGS_NAV` array (grouped under the "Cài Đặt" heading). Use the shared `lib/hooks/useStoreSettings.ts` hook for load/save and `components/admin/SettingsPageHeader.tsx` for the title/save-button header — each settings page saves only the fields it owns via `save([...FIELDS])`, so pages never clobber each other's data.
 - New public/storefront page → `app/(store)/<name>/page.tsx`, server component, `export const dynamic = 'force-dynamic'`, fetch via `createClient` from `lib/supabase/server`.
 - Interactive client pieces (forms, uploads, toggles) → `'use client'`, fetch via `createClient` from `lib/supabase/client`.
+- Freeform admin-managed content that needs its own URL (policies, guides, etc.) → don't hardcode a new page; add a row to the generic `pages` table via `/admin/pages` and link to `/pages/<slug>`.
 
 ## 7. UI consistency
 
