@@ -4,12 +4,9 @@ import { useState } from 'react'
 import { X } from 'lucide-react'
 
 const SIZE_ROWS = [
-  { size: 'XS', weight: 'Dưới 38kg', height: '1m40 - 1m45' },
-  { size: 'S', weight: '38 - 43kg', height: '1m45 - 1m53' },
-  { size: 'M', weight: '43 - 46kg', height: '1m50 - 1m55' },
-  { size: 'L', weight: '46 - 53kg', height: '1m55 - 1m60' },
-  { size: 'XL', weight: '53 - 58kg', height: '1m60 - 1m65' },
-  { size: 'XXL', weight: '58 - 66kg', height: '1m65 - 1m70' },
+  { size: 'S', bust: '78 - 83', waist: '56 - 60', hip: '85 - 89' },
+  { size: 'M', bust: '84 - 89', waist: '60 - 66', hip: '89 - 94' },
+  { size: 'L', bust: '90 - 95', waist: '67 - 72', hip: '95 - 100' },
 ]
 
 export function SizeChart() {
@@ -36,21 +33,24 @@ export function SizeChart() {
             >
               <X className="w-5 h-5" />
             </button>
-            <h2 className="text-lg font-bold mb-6">Bảng Size Cho Nữ</h2>
+            <h2 className="text-lg font-bold mb-1">Hướng Dẫn Chọn Size</h2>
+            <p className="text-xs text-neutral-500 mb-6">Áo, đầm, váy nữ, quần — đơn vị: cm</p>
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-neutral-200 text-xs text-neutral-500 uppercase tracking-wider">
                   <th className="text-left py-2">Size</th>
-                  <th className="text-left py-2">Cân Nặng (kg)</th>
-                  <th className="text-left py-2">Chiều Cao (m)</th>
+                  <th className="text-left py-2">Vòng 1</th>
+                  <th className="text-left py-2">Vòng 2</th>
+                  <th className="text-left py-2">Vòng 3</th>
                 </tr>
               </thead>
               <tbody>
                 {SIZE_ROWS.map((row) => (
                   <tr key={row.size} className="border-b border-neutral-100">
                     <td className="py-3 font-medium">{row.size}</td>
-                    <td className="py-3 text-neutral-600">{row.weight}</td>
-                    <td className="py-3 text-neutral-600">{row.height}</td>
+                    <td className="py-3 text-neutral-600">{row.bust}</td>
+                    <td className="py-3 text-neutral-600">{row.waist}</td>
+                    <td className="py-3 text-neutral-600">{row.hip}</td>
                   </tr>
                 ))}
               </tbody>

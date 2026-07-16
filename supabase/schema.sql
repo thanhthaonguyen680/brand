@@ -480,20 +480,17 @@ Mọi thắc mắc vui lòng liên hệ qua mục Liên Hệ ở footer.'
 (
   'Hướng Dẫn Size',
   'huong-dan-size',
-  'Bảng size dưới đây giúp bạn chọn được form dáng vừa vặn nhất. Nếu số đo của bạn nằm giữa 2 size, hãy chọn size lớn hơn để thoải mái hơn khi mặc.
+  'Hướng dẫn chọn size cho Áo, Đầm, Váy Nữ, Quần. Nếu số đo của bạn nằm giữa 2 size, hãy chọn size lớn hơn để thoải mái hơn khi mặc.
 
-Bảng Size Cho Nữ
-- XS: Dưới 38kg — Cao 1m40 - 1m45
-- S: 38 - 43kg — Cao 1m45 - 1m53
-- M: 43 - 46kg — Cao 1m50 - 1m55
-- L: 46 - 53kg — Cao 1m55 - 1m60
-- XL: 53 - 58kg — Cao 1m60 - 1m65
-- XXL: 58 - 66kg — Cao 1m65 - 1m70
+Bảng Size (đơn vị: cm)
+- Size S: Vòng 1 78-83 — Vòng 2 56-60 — Vòng 3 85-89
+- Size M: Vòng 1 84-89 — Vòng 2 60-66 — Vòng 3 89-94
+- Size L: Vòng 1 90-95 — Vòng 2 67-72 — Vòng 3 95-100
 
 Cách đo số đo cơ thể
-- Vòng ngực: đo quanh phần ngực nở nhất.
-- Vòng eo: đo quanh phần eo nhỏ nhất.
-- Vòng mông: đo quanh phần mông nở nhất.
+- Vòng 1 (ngực): đo quanh phần ngực nở nhất.
+- Vòng 2 (eo): đo quanh phần eo nhỏ nhất.
+- Vòng 3 (mông): đo quanh phần mông nở nhất.
 
 Nếu vẫn phân vân giữa 2 size, hãy liên hệ với KHA qua mục Liên Hệ để được tư vấn size phù hợp với dáng người của bạn.'
 ),
