@@ -10,7 +10,7 @@ Categories, navigation menu, hero/about/popup copy, theme colors, and fonts all 
 
 `supabase/schema.sql` is the **complete, up-to-date schema** (as of 2026-07-15 it was consolidated from over a dozen incremental migration files — see git history). When adding a column, table, or storage bucket:
 
-- Create a new `supabase/migration_<feature>.sql` with just the new change — this is what lets someone with an **existing** production database (which already has data and can't re-run `schema.sql`) catch up.
+- Prefer appending to the most recently-created migration file that touches the same table/feature, rather than creating a new one-line file every time — the user has explicitly asked not to let `supabase/` sprawl into dozens of tiny files. `add column if not exists` and `create or replace function` are idempotent, so re-running a whole existing file (even the parts already applied) is always safe. Only start a genuinely new file for a distinct new feature area (new table, new RLS policies, a different part of the app).
 - Also fold the same change directly into `supabase/schema.sql` in the same commit, so it stays accurate for anyone setting up a **fresh** project. Don't let the two drift apart again.
 - Migrations are **never auto-applied**. Always tell the user explicitly to run the new file in the Supabase SQL Editor after you push code — code referencing a column/table that doesn't exist yet will fail at runtime, not at build time.
 - Update `lib/types.ts` in the same change whenever a DB column/table changes shape.

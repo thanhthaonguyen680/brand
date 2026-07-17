@@ -30,6 +30,7 @@ const schema = z.object({
   status: z.enum(['active', 'draft', 'archived']),
   featured: z.boolean(),
   is_new: z.boolean(),
+  on_sale: z.boolean(),
   category_id: z.string().optional(),
 })
 
@@ -47,7 +48,7 @@ export default function ProductFormPage() {
 
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: { status: 'draft', featured: false, is_new: false, stock: 0, price: 0 },
+    defaultValues: { status: 'draft', featured: false, is_new: false, on_sale: false, stock: 0, price: 0 },
   })
 
   const nameValue = watch('name')
@@ -218,6 +219,10 @@ export default function ProductFormPage() {
               <div className="flex items-center gap-2">
                 <input type="checkbox" id="is_new" {...register('is_new')} className="w-4 h-4" />
                 <Label htmlFor="is_new">Hàng mới về</Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <input type="checkbox" id="on_sale" {...register('on_sale')} className="w-4 h-4" />
+                <Label htmlFor="on_sale">Khuyến mãi (Sale Off)</Label>
               </div>
 
               <div className="space-y-2 pt-4">

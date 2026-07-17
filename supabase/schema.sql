@@ -90,6 +90,7 @@ create table public.products (
   status text not null default 'draft' check (status in ('active', 'draft', 'archived')),
   featured boolean not null default false,
   is_new boolean not null default false,
+  on_sale boolean not null default false,
   tags text[] not null default '{}',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()

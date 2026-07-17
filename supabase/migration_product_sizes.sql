@@ -1,6 +1,7 @@
 -- Per-size stock on products, e.g. [{"size": "S", "stock": 10}, {"size": "M", "stock": 5}]
 alter table public.products
-  add column if not exists sizes jsonb not null default '[]'::jsonb;
+  add column if not exists sizes jsonb not null default '[]'::jsonb,
+  add column if not exists on_sale boolean not null default false;
 
 -- Which size was purchased on each order line
 alter table public.order_items

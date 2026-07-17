@@ -28,6 +28,7 @@ const schema = z.object({
   status: z.enum(['active', 'draft', 'archived']),
   featured: z.boolean(),
   is_new: z.boolean(),
+  on_sale: z.boolean(),
   category_id: z.string().optional(),
 })
 
@@ -50,7 +51,7 @@ export default function ProductEditPage() {
 
   const { register, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: { status: 'draft', featured: false, is_new: false, stock: 0, price: 0 },
+    defaultValues: { status: 'draft', featured: false, is_new: false, on_sale: false, stock: 0, price: 0 },
   })
 
   useEffect(() => {
@@ -73,6 +74,7 @@ export default function ProductEditPage() {
           status: product.status,
           featured: product.featured,
           is_new: product.is_new ?? false,
+          on_sale: product.on_sale ?? false,
           category_id: product.category_id || undefined,
         })
         setImages(product.images || [])
@@ -274,6 +276,10 @@ export default function ProductEditPage() {
               <div className="flex items-center gap-2">
                 <input type="checkbox" id="is_new" {...register('is_new')} className="w-4 h-4" />
                 <Label htmlFor="is_new">Hàng mới về</Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <input type="checkbox" id="on_sale" {...register('on_sale')} className="w-4 h-4" />
+                <Label htmlFor="on_sale">Khuyến mãi (Sale Off)</Label>
               </div>
               <div className="space-y-2 pt-4">
                 <Button type="submit" className="w-full" disabled={saving}>

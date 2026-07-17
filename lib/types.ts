@@ -43,6 +43,7 @@ export type Product = {
   status: 'active' | 'draft' | 'archived'
   featured: boolean
   is_new: boolean
+  on_sale: boolean
   tags: string[]
   created_at: string
   updated_at: string
