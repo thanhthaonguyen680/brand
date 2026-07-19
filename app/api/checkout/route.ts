@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { generateOrderNumber } from '@/lib/utils'
 
 export async function POST(request: NextRequest) {
@@ -15,13 +15,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Thiếu thông tin đơn hàng' }, { status: 400 })
     }
 
+    // Use the user's own session only to identify them (if logged in) — the
+    // writes below run through the admin client because guest orders have a
+    // null user_id, and "auth.uid() = user_id" never matches NULL = NULL
+    // under the row-level security policy, which would otherwise block
+    // reading back the row we just inserted.
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
+    const admin = await createAdminClient()
 
     const orderNumber = generateOrderNumber()
 
     // Create order
-    const { data: order, error: orderError } = await supabase
+    const { data: order, error: orderError } = await admin
       .from('orders')
       .insert({
         order_number: orderNumber,
@@ -42,7 +48,7 @@ export async function POST(request: NextRequest) {
     if (orderError) throw orderError
 
     // Create order items
-    await supabase.from('order_items').insert(
+    await admin.from('order_items').insert(
       items.map((item: {
         product_id: string
         quantity: number
@@ -64,12 +70,12 @@ export async function POST(request: NextRequest) {
     // Decrement stock
     for (const item of items) {
       try {
-        await supabase.rpc('decrement_stock', {
+        await admin.rpc('decrement_stock', {
           p_product_id: item.product_id,
           p_quantity: item.quantity,
         })
         if (item.size) {
-          await supabase.rpc('decrement_size_stock', {
+          await admin.rpc('decrement_size_stock', {
             p_product_id: item.product_id,
             p_size: item.size,
             p_quantity: item.quantity,
@@ -81,9 +87,9 @@ export async function POST(request: NextRequest) {
     // Update campaign usage
     if (promo_code) {
       try {
-        const { data: camp } = await supabase.from('campaigns').select('uses_count').eq('code', promo_code).single()
+        const { data: camp } = await admin.from('campaigns').select('uses_count').eq('code', promo_code).single()
         if (camp) {
-          await supabase.from('campaigns').update({ uses_count: camp.uses_count + 1 }).eq('code', promo_code)
+          await admin.from('campaigns').update({ uses_count: camp.uses_count + 1 }).eq('code', promo_code)
         }
       } catch {}
     }
