@@ -44,6 +44,7 @@ export type Product = {
   featured: boolean
   is_new: boolean
   on_sale: boolean
+  allow_preorder: boolean
   tags: string[]
   created_at: string
   updated_at: string

@@ -48,7 +48,7 @@ export default function AdminProductsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-2xl font-bold">Sản Phẩm</h1>
           <p className="text-neutral-500 text-sm mt-1">{products.length} sản phẩm</p>
@@ -80,6 +80,7 @@ export default function AdminProductsPage() {
         </div>
       ) : (
         <Card>
+          <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b border-neutral-200 text-xs text-neutral-500 uppercase tracking-wider">
@@ -145,6 +146,7 @@ export default function AdminProductsPage() {
               ))}
             </tbody>
           </table>
+          </div>
         </Card>
       )}
     </div>

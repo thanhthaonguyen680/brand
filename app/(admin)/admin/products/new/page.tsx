@@ -31,6 +31,7 @@ const schema = z.object({
   featured: z.boolean(),
   is_new: z.boolean(),
   on_sale: z.boolean(),
+  allow_preorder: z.boolean(),
   category_id: z.string().optional(),
 })
 
@@ -48,7 +49,7 @@ export default function ProductFormPage() {
 
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: { status: 'draft', featured: false, is_new: false, on_sale: false, stock: 0, price: 0 },
+    defaultValues: { status: 'draft', featured: false, is_new: false, on_sale: false, allow_preorder: false, stock: 0, price: 0 },
   })
 
   const nameValue = watch('name')
@@ -223,6 +224,10 @@ export default function ProductFormPage() {
               <div className="flex items-center gap-2">
                 <input type="checkbox" id="on_sale" {...register('on_sale')} className="w-4 h-4" />
                 <Label htmlFor="on_sale">Khuyến mãi (Sale Off)</Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <input type="checkbox" id="allow_preorder" {...register('allow_preorder')} className="w-4 h-4" />
+                <Label htmlFor="allow_preorder">Cho đặt trước khi hết hàng (Pre-order)</Label>
               </div>
 
               <div className="space-y-2 pt-4">

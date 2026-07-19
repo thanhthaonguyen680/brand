@@ -79,6 +79,9 @@ export default function ProductDetailPage() {
     : 0
   const availableStock = hasSizes ? selectedSizeStock : product.stock
   const inStock = hasSizes ? product.sizes.some((s) => s.stock > 0) : product.stock > 0
+  const isPreorder = !inStock && product.allow_preorder
+  const canOrder = inStock || isPreorder
+  const maxQuantity = isPreorder ? 10 : availableStock
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-12">
@@ -154,40 +157,45 @@ export default function ProductDetailPage() {
               ✓ Còn hàng{!hasSizes && ` (${product.stock} sản phẩm)`}
               {hasSizes && selectedSize && ` (${availableStock} sản phẩm)`}
             </p>
+          ) : isPreorder ? (
+            <p className="text-sm text-[var(--color-brand-secondary)] mb-6">🕒 Đặt Trước — sản phẩm sẽ được giao sau khi có hàng</p>
           ) : (
             <p className="text-sm text-red-500 mb-6">✗ Hết hàng</p>
           )}
 
-          {hasSizes && inStock && (
+          {hasSizes && canOrder && (
             <div className="mb-6">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium">Size:</span>
                 <SizeChart />
               </div>
               <div className="flex flex-wrap gap-2">
-                {product.sizes.map((s) => (
-                  <button
-                    key={s.size}
-                    type="button"
-                    disabled={s.stock <= 0}
-                    onClick={() => { setSelectedSize(s.size); setQuantity(1) }}
-                    className={`w-12 h-10 border text-sm transition-colors ${
-                      selectedSize === s.size
-                        ? 'border-[var(--color-brand-primary)] bg-[var(--color-brand-primary)] text-white'
-                        : s.stock <= 0
-                        ? 'border-neutral-200 text-neutral-300 cursor-not-allowed line-through'
-                        : 'border-neutral-300 hover:border-[var(--color-brand-primary)]'
-                    }`}
-                  >
-                    {s.size}
-                  </button>
-                ))}
+                {product.sizes.map((s) => {
+                  const disabled = !isPreorder && s.stock <= 0
+                  return (
+                    <button
+                      key={s.size}
+                      type="button"
+                      disabled={disabled}
+                      onClick={() => { setSelectedSize(s.size); setQuantity(1) }}
+                      className={`w-12 h-10 border text-sm transition-colors ${
+                        selectedSize === s.size
+                          ? 'border-[var(--color-brand-primary)] bg-[var(--color-brand-primary)] text-white'
+                          : disabled
+                          ? 'border-neutral-200 text-neutral-300 cursor-not-allowed line-through'
+                          : 'border-neutral-300 hover:border-[var(--color-brand-primary)]'
+                      }`}
+                    >
+                      {s.size}
+                    </button>
+                  )
+                })}
               </div>
               {!selectedSize && <p className="text-xs text-neutral-400 mt-2">Vui lòng chọn size</p>}
             </div>
           )}
 
-          {inStock && (!hasSizes || selectedSize) && (
+          {canOrder && (!hasSizes || selectedSize) && (
             <>
               <div className="flex items-center gap-4 mb-6">
                 <span className="text-sm font-medium">Số Lượng:</span>
@@ -200,7 +208,7 @@ export default function ProductDetailPage() {
                   </button>
                   <span className="w-12 text-center text-sm">{quantity}</span>
                   <button
-                    onClick={() => setQuantity(Math.min(availableStock, quantity + 1))}
+                    onClick={() => setQuantity(Math.min(maxQuantity, quantity + 1))}
                     className="w-10 h-10 flex items-center justify-center hover:bg-neutral-100"
                   >
                     <Plus className="w-4 h-4" />
@@ -216,12 +224,18 @@ export default function ProductDetailPage() {
                   onClick={() => addItem(product, quantity, selectedSize)}
                 >
                   <ShoppingBag className="w-4 h-4" />
-                  Thêm Vào Giỏ
+                  {isPreorder ? 'Đặt Trước' : 'Thêm Vào Giỏ'}
                 </Button>
                 <Button size="lg" variant="outline" className="w-12">
                   <Heart className="w-4 h-4" />
                 </Button>
               </div>
+
+              {isPreorder && (
+                <p className="text-xs text-neutral-500 mt-3">
+                  🕒 Lưu ý: đây là sản phẩm đặt trước — dự kiến giao hàng trong vòng 14 ngày kể từ khi đặt. Món đồ đặc biệt luôn xứng đáng để chờ đợi.
+                </p>
+              )}
             </>
           )}
 

@@ -33,7 +33,7 @@ export default function AdminPagesPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-2xl font-bold">Trang Nội Dung</h1>
           <p className="text-neutral-500 text-sm mt-1">{pages.length} trang — dùng để gắn vào Menu Điều Hướng hoặc Footer</p>
@@ -47,6 +47,7 @@ export default function AdminPagesPage() {
       </div>
 
       <Card>
+        <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
             <tr className="border-b border-neutral-200 text-xs text-neutral-500 uppercase tracking-wider">
@@ -82,6 +83,7 @@ export default function AdminPagesPage() {
             )}
           </tbody>
         </table>
+        </div>
       </Card>
     </div>
   )

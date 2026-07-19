@@ -156,7 +156,7 @@ export default function CheckoutPage() {
 
       if (result.order_id) {
         clearCart()
-        router.push(`/account?order=${result.order_id}&success=true`)
+        router.push(`/checkout/success?order=${result.order_number}`)
       }
     } catch {
       alert('Có lỗi xảy ra. Vui lòng thử lại.')

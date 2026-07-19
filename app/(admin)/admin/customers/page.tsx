@@ -28,6 +28,7 @@ export default async function AdminCustomersPage() {
       </div>
 
       <Card>
+        <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
             <tr className="border-b border-neutral-200 text-xs text-neutral-500 uppercase tracking-wider">
@@ -71,6 +72,7 @@ export default async function AdminCustomersPage() {
             )}
           </tbody>
         </table>
+        </div>
       </Card>
     </div>
   )

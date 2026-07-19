@@ -76,7 +76,7 @@ export default function AdminCampaignsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-2xl font-bold">Chiến Dịch & Khuyến Mãi</h1>
           <p className="text-neutral-500 text-sm mt-1">{campaigns.length} chiến dịch</p>

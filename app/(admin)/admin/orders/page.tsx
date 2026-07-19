@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { Order, PaymentStatus } from '@/lib/types'
 import { formatPrice, ORDER_STATUS_LABELS, PAYMENT_STATUS_LABELS, PAYMENT_METHOD_LABELS } from '@/lib/utils'
@@ -55,7 +56,7 @@ export default function AdminOrdersPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-2xl font-bold">Đơn Hàng</h1>
           <p className="text-neutral-500 text-sm mt-1">{orders.length} đơn hàng</p>
@@ -79,6 +80,7 @@ export default function AdminOrdersPage() {
         <div className="text-center py-20 text-neutral-400">Không có đơn hàng nào</div>
       ) : (
         <Card>
+          <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b border-neutral-200 text-xs text-neutral-500 uppercase tracking-wider">
@@ -94,7 +96,11 @@ export default function AdminOrdersPage() {
             <tbody>
               {orders.map((order) => (
                 <tr key={order.id} className="border-b border-neutral-100 hover:bg-neutral-50 transition-colors">
-                  <td className="px-6 py-4 text-sm font-medium">{order.order_number}</td>
+                  <td className="px-6 py-4 text-sm font-medium">
+                    <Link href={`/admin/orders/${order.id}`} className="hover:text-[#c9a96e] hover:underline">
+                      {order.order_number}
+                    </Link>
+                  </td>
                   <td className="px-6 py-4 text-sm text-neutral-600">{address(order)}</td>
                   <td className="px-6 py-4 text-sm font-medium">{formatPrice(order.total)}</td>
                   <td className="px-6 py-4">
@@ -139,6 +145,7 @@ export default function AdminOrdersPage() {
               ))}
             </tbody>
           </table>
+          </div>
         </Card>
       )}
     </div>

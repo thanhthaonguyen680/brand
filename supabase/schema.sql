@@ -91,6 +91,7 @@ create table public.products (
   featured boolean not null default false,
   is_new boolean not null default false,
   on_sale boolean not null default false,
+  allow_preorder boolean not null default false,
   tags text[] not null default '{}',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()

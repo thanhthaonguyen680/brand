@@ -46,6 +46,7 @@ export function RecentOrdersTable() {
   if (orders.length === 0) return <p className="text-center py-8 text-neutral-400 text-sm">Chưa có đơn hàng nào</p>
 
   return (
+    <div className="overflow-x-auto">
     <table className="w-full">
       <thead>
         <tr className="border-b border-neutral-200 text-xs text-neutral-500 uppercase tracking-wider">
@@ -60,7 +61,7 @@ export function RecentOrdersTable() {
         {orders.map((order) => (
           <tr key={order.id} className="border-b border-neutral-100 hover:bg-neutral-50 transition-colors">
             <td className="px-6 py-4">
-              <Link href="/admin/orders" className="text-sm font-medium hover:text-[#c9a96e]">
+              <Link href={`/admin/orders/${order.id}`} className="text-sm font-medium hover:text-[#c9a96e]">
                 {order.order_number}
               </Link>
             </td>
@@ -104,5 +105,6 @@ export function RecentOrdersTable() {
         ))}
       </tbody>
     </table>
+    </div>
   )
 }

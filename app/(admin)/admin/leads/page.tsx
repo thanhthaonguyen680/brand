@@ -37,6 +37,7 @@ export default function AdminLeadsPage() {
       </div>
 
       <Card>
+        <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
             <tr className="border-b border-neutral-200 text-xs text-neutral-500 uppercase tracking-wider">
@@ -74,6 +75,7 @@ export default function AdminLeadsPage() {
             )}
           </tbody>
         </table>
+        </div>
       </Card>
     </div>
   )

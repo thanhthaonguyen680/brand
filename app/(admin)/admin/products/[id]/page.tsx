@@ -29,6 +29,7 @@ const schema = z.object({
   featured: z.boolean(),
   is_new: z.boolean(),
   on_sale: z.boolean(),
+  allow_preorder: z.boolean(),
   category_id: z.string().optional(),
 })
 
@@ -51,7 +52,7 @@ export default function ProductEditPage() {
 
   const { register, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: { status: 'draft', featured: false, is_new: false, on_sale: false, stock: 0, price: 0 },
+    defaultValues: { status: 'draft', featured: false, is_new: false, on_sale: false, allow_preorder: false, stock: 0, price: 0 },
   })
 
   useEffect(() => {
@@ -75,6 +76,7 @@ export default function ProductEditPage() {
           featured: product.featured,
           is_new: product.is_new ?? false,
           on_sale: product.on_sale ?? false,
+          allow_preorder: product.allow_preorder ?? false,
           category_id: product.category_id || undefined,
         })
         setImages(product.images || [])
@@ -280,6 +282,10 @@ export default function ProductEditPage() {
               <div className="flex items-center gap-2">
                 <input type="checkbox" id="on_sale" {...register('on_sale')} className="w-4 h-4" />
                 <Label htmlFor="on_sale">Khuyến mãi (Sale Off)</Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <input type="checkbox" id="allow_preorder" {...register('allow_preorder')} className="w-4 h-4" />
+                <Label htmlFor="allow_preorder">Cho đặt trước khi hết hàng (Pre-order)</Label>
               </div>
               <div className="space-y-2 pt-4">
                 <Button type="submit" className="w-full" disabled={saving}>
