@@ -9,9 +9,10 @@ import { Input } from '@/components/ui/input'
 interface ImageUploadProps {
   images: string[]
   onChange: (images: string[]) => void
+  bucket?: string
 }
 
-export function ImageUpload({ images, onChange }: ImageUploadProps) {
+export function ImageUpload({ images, onChange, bucket = 'products' }: ImageUploadProps) {
   const fileRef = useRef<HTMLInputElement>(null)
   const [urlInput, setUrlInput] = useState('')
   const [uploading, setUploading] = useState(false)
@@ -33,12 +34,12 @@ export function ImageUpload({ images, onChange }: ImageUploadProps) {
       const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
 
       const { error: uploadError } = await supabase.storage
-        .from('products')
+        .from(bucket)
         .upload(fileName, file, { cacheControl: '3600', upsert: false })
 
       if (uploadError) throw uploadError
 
-      const { data } = supabase.storage.from('products').getPublicUrl(fileName)
+      const { data } = supabase.storage.from(bucket).getPublicUrl(fileName)
       onChange([...images, data.publicUrl])
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Upload thất bại')

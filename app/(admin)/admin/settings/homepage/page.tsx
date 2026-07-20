@@ -6,15 +6,19 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { SettingsImageInput } from '@/components/admin/SettingsImageInput'
+import { ImageUpload } from '@/components/admin/ImageUpload'
 import { SettingsPageHeader } from '@/components/admin/SettingsPageHeader'
 
 const FIELDS = [
-  'hero_badge', 'hero_title_image_url', 'hero_title', 'hero_subtitle', 'hero_image_url', 'banner_text',
+  'hero_badge', 'hero_title_image_url', 'hero_title', 'hero_subtitle', 'hero_images', 'banner_text',
   'hero2_title', 'hero2_subtitle', 'hero2_image_url', 'hero2_cta', 'member_banner_enabled',
 ] as const
 
 export default function HomepageSettingsPage() {
   const { settings, setSettings, update, loading, saving, saved, error, save } = useStoreSettings()
+
+  const heroImages: string[] = settings.hero_images || []
+  const setHeroImages = (images: string[]) => setSettings((prev) => ({ ...prev, hero_images: images }))
 
   if (loading) return <div className="text-center py-20 text-neutral-400">Đang tải...</div>
 
@@ -51,8 +55,9 @@ export default function HomepageSettingsPage() {
               <Input value={settings.hero_subtitle || ''} onChange={(e) => update('hero_subtitle', e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label>Hình ảnh Hero</Label>
-              <SettingsImageInput value={settings.hero_image_url || ''} onChange={(v) => update('hero_image_url', v)} bucket="settings" />
+              <Label>Hình ảnh Hero (Carousel)</Label>
+              <ImageUpload images={heroImages} onChange={setHeroImages} bucket="settings" />
+              <p className="text-xs text-neutral-400">Ảnh đầu tiên hiện cùng tiêu đề/nút bên trên (có lớp phủ tối để dễ đọc chữ). Thêm từ ảnh thứ 2 trở đi sẽ tự động chạy carousel — hiện sáng đầy đủ, không chữ, không phủ tối.</p>
             </div>
             <div className="space-y-2">
               <Label>Banner thông báo (ví dụ: FREE SHIP đơn trên 2tr)</Label>

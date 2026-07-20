@@ -322,6 +322,7 @@ create table public.store_settings (
   hero_title_image_url text,
   hero_subtitle text not null default 'Discover timeless elegance in every piece',
   hero_image_url text,
+  hero_images text[] not null default '{}',
   hero2_title text,
   hero2_subtitle text,
   hero2_image_url text,

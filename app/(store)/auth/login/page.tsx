@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { Suspense, useState, useEffect } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -27,8 +27,10 @@ const setPasswordSchema = z.object({
 type FormData = z.infer<typeof schema>
 type SetPasswordData = z.infer<typeof setPasswordSchema>
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirectTo = searchParams.get('redirect') || '/account'
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [checkingInvite, setCheckingInvite] = useState(true)
@@ -70,7 +72,7 @@ export default function LoginPage() {
       setError('Email hoặc mật khẩu không đúng')
       setLoading(false)
     } else {
-      router.push('/account')
+      router.push(redirectTo)
       router.refresh()
     }
   }
@@ -87,7 +89,7 @@ export default function LoginPage() {
       setPasswordSet(true)
       setLoading(false)
       setTimeout(() => {
-        router.push('/account')
+        router.push(redirectTo)
         router.refresh()
       }, 1500)
     }
@@ -144,7 +146,9 @@ export default function LoginPage() {
         <div className="text-center mb-8">
           <Link href="/" className="text-2xl font-bold tracking-[0.3em]">KHA</Link>
           <h1 className="text-xl font-semibold mt-6 mb-2">Đăng Nhập</h1>
-          <p className="text-sm text-neutral-500">Chào mừng trở lại</p>
+          <p className="text-sm text-neutral-500">
+            {redirectTo.startsWith('/admin') ? 'Đăng nhập vào trang quản trị' : 'Chào mừng trở lại'}
+          </p>
         </div>
 
         {error && (
@@ -175,5 +179,13 @@ export default function LoginPage() {
         </p>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginContent />
+    </Suspense>
   )
 }

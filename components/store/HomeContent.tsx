@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
@@ -10,12 +11,14 @@ import { Product } from '@/lib/types'
 
 const DEFAULT_HERO = 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1920&q=80'
 const DEFAULT_HERO2_IMG = 'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=1200&q=80'
+const HERO_SLIDE_INTERVAL = 5000
 
 interface HomeContentProps {
   featuredProducts: Product[]
   newArrivals: Product[]
   heroBadge?: string | null
   heroImageUrl?: string | null
+  heroImages?: string[]
   heroTitleImageUrl?: string | null
   heroTitle?: string | null
   heroSubtitle?: string | null
@@ -31,6 +34,7 @@ export function HomeContent({
   newArrivals,
   heroBadge,
   heroImageUrl,
+  heroImages,
   heroTitleImageUrl,
   heroTitle,
   heroSubtitle,
@@ -42,51 +46,86 @@ export function HomeContent({
 }: HomeContentProps) {
   const { t } = useTranslation()
 
+  const slides = heroImages && heroImages.length > 0 ? heroImages : [heroImageUrl || DEFAULT_HERO]
+  const [activeSlide, setActiveSlide] = useState(0)
+
+  useEffect(() => {
+    if (slides.length <= 1) return
+    const timer = setInterval(() => {
+      setActiveSlide((prev) => (prev + 1) % slides.length)
+    }, HERO_SLIDE_INTERVAL)
+    return () => clearInterval(timer)
+  }, [slides.length])
+
   return (
     <>
-      {/* ── Hero 1 ── Full viewport dark overlay (kept neutral so it doesn't tint the photo) */}
+      {/* ── Hero 1 ── Carousel; only slide 0 carries the title/CTA + dark overlay */}
       <section className="relative h-[90vh] bg-neutral-900 flex items-center justify-center overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center opacity-40"
-          style={{ backgroundImage: `url('${heroImageUrl || DEFAULT_HERO}')` }}
-        />
-        <div className="relative text-center text-white px-4 max-w-3xl mx-auto">
-          <p className="text-xs tracking-[0.4em] uppercase text-[var(--color-brand-secondary)] mb-4">{heroBadge || t.hero.badge}</p>
-          {heroTitleImageUrl ? (
-            <div className="mb-6 flex justify-center">
-              <img
-                src={heroTitleImageUrl}
-                alt="logo"
-                className="max-h-40 md:max-h-56 w-auto object-contain drop-shadow-lg"
-              />
+        {slides.map((src, i) => (
+          <div
+            key={i}
+            className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${
+              i === activeSlide ? 'opacity-100' : 'opacity-0'
+            } ${i === 0 ? 'brightness-[0.6]' : ''}`}
+            style={{ backgroundImage: `url('${src}')` }}
+          />
+        ))}
+
+        {activeSlide === 0 && (
+          <div className="relative text-center text-white px-4 max-w-3xl mx-auto">
+            <p className="text-xs tracking-[0.4em] uppercase text-[var(--color-brand-secondary)] mb-4">{heroBadge || t.hero.badge}</p>
+            {heroTitleImageUrl ? (
+              <div className="mb-6 flex justify-center">
+                <img
+                  src={heroTitleImageUrl}
+                  alt="logo"
+                  className="max-h-40 md:max-h-56 w-auto object-contain drop-shadow-lg"
+                />
+              </div>
+            ) : (
+              <h1
+                className="text-7xl md:text-9xl mb-6 leading-none"
+                style={{ fontFamily: 'var(--font-script)' }}
+              >
+                {heroTitle || 'kha.'}
+              </h1>
+            )}
+            {heroSubtitle && (
+              <p className="text-neutral-300 text-2xl mb-10 max-w-md mx-auto" style={{ fontFamily: 'MrDeHaviland, cursive' }}>
+                {heroSubtitle}
+              </p>
+            )}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button variant="gold" size="lg" asChild>
+                <Link href="/products">{t.hero.cta}</Link>
+              </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                className="border-white text-white hover:bg-white hover:text-neutral-900"
+                asChild
+              >
+                <Link href="/products?featured=true">{t.hero.featured_btn}</Link>
+              </Button>
             </div>
-          ) : (
-            <h1
-              className="text-7xl md:text-9xl mb-6 leading-none"
-              style={{ fontFamily: 'var(--font-script)' }}
-            >
-              {heroTitle || 'kha.'}
-            </h1>
-          )}
-          {heroSubtitle && (
-            <p className="text-neutral-300 text-2xl mb-10 max-w-md mx-auto" style={{ fontFamily: 'MrDeHaviland, cursive' }}>
-              {heroSubtitle}
-            </p>
-          )}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button variant="gold" size="lg" asChild>
-              <Link href="/products">{t.hero.cta}</Link>
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              className="border-white text-white hover:bg-white hover:text-neutral-900"
-              asChild
-            >
-              <Link href="/products?featured=true">{t.hero.featured_btn}</Link>
-            </Button>
           </div>
-        </div>
+        )}
+
+        {slides.length > 1 && (
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+            {slides.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => setActiveSlide(i)}
+                aria-label={`Slide ${i + 1}`}
+                className={`h-1.5 rounded-full transition-all ${
+                  i === activeSlide ? 'w-6 bg-white' : 'w-1.5 bg-white/50'
+                }`}
+              />
+            ))}
+          </div>
+        )}
       </section>
 
       {/* ── Featured Products ── */}

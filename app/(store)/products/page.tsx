@@ -86,55 +86,23 @@ export default async function ProductsPage({ searchParams }: PageProps) {
         <h1 className="text-3xl font-bold">{pageTitle}</h1>
       </div>
 
-      <div className="flex gap-12">
-        {/* Sidebar */}
-        <aside className="hidden lg:block w-56 flex-shrink-0">
-          <div className="mb-8">
-            <h3 className="text-xs tracking-widest uppercase font-semibold mb-4">Danh Mục</h3>
-            <ul className="space-y-2">
-              <li>
-                <a
-                  href="/products"
-                  className={`text-sm transition-colors ${!params.category ? 'text-neutral-900 font-medium' : 'text-neutral-500 hover:text-neutral-900'}`}
-                >
-                  Tất Cả
-                </a>
-              </li>
-              {categories.map((cat) => (
-                <li key={cat.id}>
-                  <a
-                    href={`/products?category=${cat.slug}`}
-                    className={`text-sm transition-colors ${params.category === cat.slug ? 'text-neutral-900 font-medium' : 'text-neutral-500 hover:text-neutral-900'}`}
-                  >
-                    {cat.name}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </aside>
-
-        {/* Products */}
-        <div className="flex-1">
-          <div className="flex items-center justify-between mb-8">
-            <span className="text-sm text-neutral-500">{products.length} sản phẩm</span>
-            <ProductSort current={params.sort || 'newest'} />
-          </div>
-
-          {products.length === 0 ? (
-            <div className="text-center py-24 text-neutral-400">
-              <p className="text-lg mb-2">Không có sản phẩm nào</p>
-              <p className="text-sm">Hãy thử danh mục khác</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-              {products.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          )}
-        </div>
+      <div className="flex items-center justify-between mb-8">
+        <span className="text-sm text-neutral-500">{products.length} sản phẩm</span>
+        <ProductSort current={params.sort || 'newest'} />
       </div>
+
+      {products.length === 0 ? (
+        <div className="text-center py-24 text-neutral-400">
+          <p className="text-lg mb-2">Không có sản phẩm nào</p>
+          <p className="text-sm">Hãy thử danh mục khác</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-6">
+          {products.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
+      )}
     </div>
   )
 }

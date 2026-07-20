@@ -58,6 +58,7 @@ export default async function HomePage() {
       newArrivals={newArrivals}
       heroBadge={settings.hero_badge || null}
       heroImageUrl={settings.hero_image_url || null}
+      heroImages={settings.hero_images || []}
       heroTitleImageUrl={settings.hero_title_image_url || null}
       heroTitle={settings.hero_title || null}
       heroSubtitle={settings.hero_subtitle || null}

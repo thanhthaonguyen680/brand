@@ -10,18 +10,22 @@ import { createClient } from '@/lib/supabase/server'
 async function getStoreNav() {
   try {
     const supabase = await createClient()
-    const { data } = await supabase
-      .from('store_settings')
-      .select(`
-        logo_url, menu_items, popup_enabled, popup_title, popup_description,
-        footer_description, footer_explore_links, footer_support_links,
-        footer_copyright, footer_payment_text, social_instagram, social_facebook
-      `)
-      .eq('id', 1)
-      .single()
+    const [{ data }, { data: categories }] = await Promise.all([
+      supabase
+        .from('store_settings')
+        .select(`
+          logo_url, menu_items, popup_enabled, popup_title, popup_description,
+          footer_description, footer_explore_links, footer_support_links,
+          footer_copyright, footer_payment_text, social_instagram, social_facebook
+        `)
+        .eq('id', 1)
+        .single(),
+      supabase.from('categories').select('name, slug').order('name'),
+    ])
     return {
       logoUrl: data?.logo_url || null,
       menuItems: data?.menu_items || null,
+      categories: categories || [],
       popupEnabled: data?.popup_enabled || false,
       popupTitle: data?.popup_title || 'Ưu Đãi Dành Riêng Cho Bạn',
       popupDescription: data?.popup_description || 'Để lại thông tin để nhận ưu đãi mới nhất từ chúng tôi.',
@@ -35,7 +39,7 @@ async function getStoreNav() {
     }
   } catch {
     return {
-      logoUrl: null, menuItems: null, popupEnabled: false, popupTitle: '', popupDescription: '',
+      logoUrl: null, menuItems: null, categories: [], popupEnabled: false, popupTitle: '', popupDescription: '',
       footerDescription: null, footerExploreLinks: null, footerSupportLinks: null,
       footerCopyright: null, footerPaymentText: null, socialInstagram: null, socialFacebook: null,
     }
@@ -44,14 +48,14 @@ async function getStoreNav() {
 
 export default async function StoreLayout({ children }: { children: React.ReactNode }) {
   const {
-    logoUrl, menuItems, popupEnabled, popupTitle, popupDescription,
+    logoUrl, menuItems, categories, popupEnabled, popupTitle, popupDescription,
     footerDescription, footerExploreLinks, footerSupportLinks,
     footerCopyright, footerPaymentText, socialInstagram, socialFacebook,
   } = await getStoreNav()
 
   return (
     <LanguageProvider>
-      <Navbar logoUrl={logoUrl} menuItems={menuItems} />
+      <Navbar logoUrl={logoUrl} menuItems={menuItems} categories={categories} supportLinks={footerSupportLinks} />
       <CartSidebar />
       {popupEnabled && <LeadPopup title={popupTitle} description={popupDescription} />}
       <main className="pt-16 min-h-screen">

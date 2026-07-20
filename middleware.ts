@@ -35,7 +35,9 @@ export async function middleware(request: NextRequest) {
   // Protect admin routes
   if (request.nextUrl.pathname.startsWith('/admin')) {
     if (!user) {
-      return NextResponse.redirect(new URL('/auth/login', request.url))
+      const loginUrl = new URL('/auth/login', request.url)
+      loginUrl.searchParams.set('redirect', request.nextUrl.pathname)
+      return NextResponse.redirect(loginUrl)
     }
 
     // Check admin role

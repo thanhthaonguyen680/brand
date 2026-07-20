@@ -2,7 +2,7 @@
 
 A full-stack e-commerce storefront and admin panel for a luxury fashion brand, built with Next.js and Supabase.
 
-🔗 **Live site:** [khaoffical.vn](https://khaoffical.vn/)
+🔗 **Live site:** [khaofficial.vn](https://khaofficial.vn/)
 
 > **Note:** this project runs on a customized build of Next.js. Breaking changes from stock Next.js may apply — see `AGENTS.md` before making framework-level changes.
 
@@ -116,10 +116,20 @@ This repo is public at [github.com/thanhthaonguyen680/kha-store](https://github.
    git push origin feature/your-feature-name
    ```
 4. **Open a Pull Request** on GitHub for review before merging into `main`.
-5. Once merged, Vercel automatically deploys `main` to [khaoffical.vn](https://khaoffical.vn/).
+5. Once merged, Vercel automatically deploys `main` to [khaofficial.vn](https://khaofficial.vn/).
 
 ## Deployment
 
 The project auto-deploys via [Vercel](https://vercel.com) on every push to `main`. Any new `supabase/migration_*.sql` file must be run manually in the Supabase SQL Editor after deploying — migrations are not applied automatically. Each new migration should also be folded into `supabase/schema.sql` so it stays a complete, accurate schema for anyone setting up a fresh project.
 
-**Analytics:** the app ships with `@vercel/analytics` already wired into `app/layout.tsx`. After deploying, go to the project on Vercel → **Analytics** tab → **Enable** to start seeing visitor/pageview data. No extra env vars or code changes needed.
+## Analytics — Tracking Visitors
+
+Visitor/pageview tracking is already wired in via [Vercel Analytics](https://vercel.com/analytics) (`@vercel/analytics`, added in `app/layout.tsx`). No environment variables or extra code changes are needed — it just needs to be turned on once per Vercel project:
+
+1. Push to `main` so Vercel deploys the version that includes Analytics (already done if you're reading this on the current codebase).
+2. Open the project on the [Vercel dashboard](https://vercel.com/dashboard).
+3. Go to the **Analytics** tab in the top navigation.
+4. Click **Enable** (first time only).
+5. Data starts appearing within a few minutes of real visitors landing on the site — pageviews, unique visitors, top pages, referrers, and country/device breakdown.
+
+> The free plan is capped at roughly 2,500 tracked events/month. If `khaofficial.vn` gets more traffic than that, upgrade the Vercel plan to keep full data.

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import Image from 'next/image'
-import { Minus, Plus, ShoppingBag, Heart, ChevronLeft } from 'lucide-react'
+import { Minus, Plus, ShoppingBag, ChevronLeft } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -216,20 +216,15 @@ export default function ProductDetailPage() {
                 </div>
               </div>
 
-              <div className="flex gap-3">
-                <Button
-                  variant="brand"
-                  size="lg"
-                  className="flex-1"
-                  onClick={() => addItem(product, quantity, selectedSize)}
-                >
-                  <ShoppingBag className="w-4 h-4" />
-                  {isPreorder ? 'Đặt Trước' : 'Thêm Vào Giỏ'}
-                </Button>
-                <Button size="lg" variant="outline" className="w-12">
-                  <Heart className="w-4 h-4" />
-                </Button>
-              </div>
+              <Button
+                variant="brand"
+                size="lg"
+                className="w-full"
+                onClick={() => addItem(product, quantity, selectedSize)}
+              >
+                <ShoppingBag className="w-4 h-4" />
+                {isPreorder ? 'Đặt Trước' : 'Thêm Vào Giỏ'}
+              </Button>
 
               {isPreorder && (
                 <p className="text-xs text-neutral-500 mt-3">
@@ -238,13 +233,6 @@ export default function ProductDetailPage() {
               )}
             </>
           )}
-
-          <div className="mt-8 pt-8 border-t border-neutral-200 space-y-3 text-sm text-neutral-600">
-            <p>🚚 Miễn phí vận chuyển cho đơn từ 2.000.000₫</p>
-            <p>↩️ Đổi trả trong 30 ngày</p>
-            <p>🔒 Thanh toán bảo mật SSL</p>
-            {product.sku && <p className="text-neutral-400">SKU: {product.sku}</p>}
-          </div>
         </div>
       </div>
 
